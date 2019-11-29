@@ -36,7 +36,13 @@ def get_file_description(i):
 
 	return '### '+i.__doc__+'\n\n' + func_string
 
-def main(filename,printl=False):
+def init(args):
+	if args.readme:
+		filename = args.readme
+	else:
+		filename = '../../shaonutil/README.md'
+
+	printl=False
 	func_string_final = ''
 	for submod in get_all_submodules('shaonutil'):
 		func_string_final += get_file_description(submod)
@@ -70,13 +76,16 @@ def main(filename,printl=False):
 	if(printl):print(final_string_to_save)
 	shaonutil.file.write_file(filename, final_string_to_save,mode="w")
 
-if __name__ == '__main__':
-	parser = argparse.ArgumentParser()
-	parser.add_argument("--readme", help="../shaonutil/README.md",type=str)
+def main():
+	parser = argparse.ArgumentParser(description="Automatic Documentation Generator")
+	parser.add_argument("--readme", help="../../shaonutil/README.md",type=str)
 	args = parser.parse_args()
-	if args.readme:
-		filename = args.readme
-	else:
-		filename = '../shaonutil/README.md'
+	
+	
+	try:
+		init(args)
+	except KeyboardInterrupt:
+		sys.exit(0)
 
-	main(filename)
+if __name__ == '__main__':
+	main()

@@ -21,4 +21,9 @@ setup(
   download_url = 'https://github.com/ShaonMajumder/documentor/archive/0.0.0.4.1.tar.gz',
   keywords = ['shaon', 'document generator', 'documentation'],
   classifiers = [],
+  entry_points={
+      'console_scripts': [
+          'documentor=documentor.documentor:main',
+      ],
+  },
 )
