@@ -6,7 +6,7 @@ import shaonutil.stats as i
 import shaonutil
 import shaonutil.file
 import argparse
-
+import os
 
 def get_all_submodules(packagename):
 	package = __import__(packagename, fromlist="dummy")	
@@ -39,7 +39,7 @@ def get_file_description(i):
 def init(args):
 	real_path = os.path.realpath('shaonutil/README.md')
 	print(real_path)
-	
+
 	if args.readme:
 		filename = args.readme
 	else:
