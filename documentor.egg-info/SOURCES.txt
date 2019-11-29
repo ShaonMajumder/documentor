@@ -1,7 +1,8 @@
 README.md
+setup.cfg
 setup.py
 documentor/__init__.py
-documentor/docu.py
+documentor/documentor.py
 documentor.egg-info/PKG-INFO
 documentor.egg-info/SOURCES.txt
 documentor.egg-info/dependency_links.txt
