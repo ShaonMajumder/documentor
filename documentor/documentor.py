@@ -37,13 +37,8 @@ def get_file_description(i):
 	return '### '+i.__doc__+'\n\n' + func_string
 
 def init(args):
-	real_path = os.path.realpath('shaonutil/README.md')
-	print(real_path)
-
 	if args.readme:
 		filename = args.readme
-	else:
-		filename = '../../shaonutil/README.md'
 
 	printl=False
 	func_string_final = ''
@@ -53,10 +48,11 @@ def init(args):
 	start = '## Function Usages'
 	end = 'Function Usages End'
 	
+	real_path = os.path.realpath(filename)
 
 	# read the contents of your README file
 	this_directory = path.abspath(path.dirname(__file__))
-	with open(path.join(this_directory, filename), encoding='utf-8') as file:
+	with open(real_path, encoding='utf-8') as file:
 	    lines = file.readlines()
 
 	count = 0
