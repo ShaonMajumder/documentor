@@ -37,6 +37,9 @@ def get_file_description(i):
 	return '### '+i.__doc__+'\n\n' + func_string
 
 def init(args):
+	real_path = os.path.realpath('shaonutil/README.md')
+	print(real_path)
+	
 	if args.readme:
 		filename = args.readme
 	else:
