@@ -5,6 +5,8 @@ import shaonutil.file as f
 import shaonutil.stats as i
 import shaonutil
 import shaonutil.file
+import argparse
+
 
 def get_all_submodules(packagename):
 	package = __import__(packagename, fromlist="dummy")	
@@ -34,37 +36,47 @@ def get_file_description(i):
 
 	return '### '+i.__doc__+'\n\n' + func_string
 
-func_string_final = ''
-for submod in get_all_submodules('shaonutil'):
-	func_string_final += get_file_description(submod)
+def main(filename,printl=False):
+	func_string_final = ''
+	for submod in get_all_submodules('shaonutil'):
+		func_string_final += get_file_description(submod)
 
-filename = '../shaonutil/README.md'
+	start = '## Function Usages'
+	end = 'Function Usages End'
+	
 
-start = '## Function Usages'
-end = 'Function Usages End'
-#func_string_final = start +func_string_final  + end
+	# read the contents of your README file
+	this_directory = path.abspath(path.dirname(__file__))
+	with open(path.join(this_directory, filename), encoding='utf-8') as file:
+	    lines = file.readlines()
 
-# read the contents of your README file
-this_directory = path.abspath(path.dirname(__file__))
-with open(path.join(this_directory, filename), encoding='utf-8') as file:
-    lines = file.readlines()
+	count = 0
+	startc = 0
+	endc = 0
+	for c in lines:
+		if start in c:
+			startc = count
+		if end in c:
+			endc = count
+			break
+		count+=1
 
-count = 0
-startc = 0
-endc = 0
-for c in lines:
-	if start in c:
-		startc = count
-	if end in c:
-		endc = count
-		break
-	count+=1
+	alllines = ''.join(lines)
+	function_usage_string = lines[startc+1:endc]
+	deductlines = ''.join(function_usage_string)
 
-alllines = ''.join(lines)
-function_usage_string = lines[startc+1:endc]
-deductlines = ''.join(function_usage_string)
+	final_string_to_save = alllines.replace(deductlines,func_string_final)
 
-final_string_to_save = alllines.replace(deductlines,func_string_final)
+	if(printl):print(final_string_to_save)
+	shaonutil.file.write_file(filename, final_string_to_save,mode="w")
 
-print(final_string_to_save)
-shaonutil.file.write_file(filename, final_string_to_save,mode="w")
+if __name__ == '__main__':
+	parser = argparse.ArgumentParser()
+	parser.add_argument("--readme", help="../shaonutil/README.md",type=str)
+	args = parser.parse_args()
+	if args.readme:
+		filename = args.readme
+	else:
+		filename = '../shaonutil/README.md'
+
+	main(filename)
