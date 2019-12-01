@@ -10,13 +10,13 @@ with open(path.join(this_directory, 'README.md'), encoding='utf-8') as f:
 setup(
   name = 'documentor',
   packages = ['documentor'],
-  version = '0.0.0.13.1',
+  version = '0.0.0.15.1',
   long_description=long_description,
   long_description_content_type='text/markdown',
   author = 'Shaon Majumder',
   author_email = 'smazoomder@gmail.com',
   url = 'https://github.com/ShaonMajumder/documentor',
-  download_url = 'https://github.com/ShaonMajumder/documentor/archive/0.0.0.13.1.tar.gz',
+  download_url = 'https://github.com/ShaonMajumder/documentor/archive/0.0.0.15.1.tar.gz',
   keywords = ['shaon', 'document generator', 'documentation'],
   classifiers = [],
   entry_points={

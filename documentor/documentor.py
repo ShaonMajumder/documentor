@@ -15,6 +15,42 @@ def get_file_description_file(module):
 			member_doc_dic[member] = getattr(module, member).__doc__
 	return member_doc_dic
 
+def createNewReadme():
+	name = input("Project Name:")
+	tag = input("Project Tag:")
+	author = input("Project Author:")
+	contact = input("Project Contact:")
+	installation = input("Installation Link/String:")
+	
+	final_string_to_save = f"""## {name} - {tag}
+Author: {author} - {contact}
+## Utilities
+
+## Installation
+{installation}
+## Function Usages
+
+Function Usages End"""
+	return final_string_to_save
+
+def generateFunctionUsagesString(realcurrentpath):
+	#list all py modules in current directory
+	all_py_files = glob.glob(join(realcurrentpath, "*.py"))
+	allmodules = [basename(c)[:-3] for c in all_py_files if isfile(c) and not c.endswith('__init__.py')]
+
+	#get function usages lines
+	func_usages_string = ''
+	for m in allmodules:
+		module_heading = '### '+m+'\n\n'
+		module = __import__(m)
+		member_doc_dic = get_file_description_file(module)
+		func_lines = ''
+		for member in member_doc_dic:
+			func_lines += member + ' - ' + member_doc_dic[member] + '\n\n'
+		func_usages_string += module_heading + func_lines
+
+	return func_usages_string
+
 def init(args):
 	printline=False
 
@@ -29,50 +65,18 @@ def init(args):
 	outputfile = os.path.join(realcurrentpath, outputfile)
 
 	if args.readme == 'bare':
-		name = input("Project Name:")
-		tag = input("Project Tag:")
-		author = input("Project Author:")
-		contact = input("Project Contact:")
-		installation = input("Installation Link/String:")
-		
-		final_string_to_save = f"""## {name} - {tag}
-Author: {author} - {contact}
-## Utilities
-
-## Installation
-	{installation}
-## Function Usages
-
-Function Usages End"""
-
+		alllines = createNewReadme()
 	else:
 		readmefilename = args.readme
+		filerealpath = os.path.join(realcurrentpath, readmefilename)
 
-		#list all py modules in current directory
-		all_py_files = glob.glob(join(realcurrentpath, "*.py"))
-		allmodules = [basename(c)[:-3] for c in all_py_files if isfile(c) and not c.endswith('__init__.py')]
-
-		#get function usages lines
-		func_usages = ''
-		for m in allmodules:
-			module_heading = '### '+m+'\n\n'
-			module = __import__(m)
-			member_doc_dic = get_file_description_file(module)
-			func_lines = ''
-			for member in member_doc_dic:
-				func_lines += member + ' - ' + member_doc_dic[member] + '\n\n'
-			func_usages += module_heading + func_lines
-
+		func_usages_string = generateFunctionUsagesString(realcurrentpath)
 
 		start = '## Function Usages'
 		end = 'Function Usages End'
-		
-		filerealpath = os.path.join(realcurrentpath, readmefilename)
-		#os.path.realpath(readmefilename)
 		# read the contents of your README file
 		with open(filerealpath, encoding='utf-8') as file:
 		    lines = file.readlines()
-
 		#getting the existing func usages lines in readme file
 		count = 0
 		startc = 0
@@ -89,7 +93,7 @@ Function Usages End"""
 		#replacing existing lines with prepared lines
 		alllines = ''.join(lines)
 
-		final_string_to_save = alllines.replace(deductlines,func_usages)
+	final_string_to_save = alllines.replace(deductlines,func_usages_string)
 
 
 	if(printline):print(final_string_to_save)
