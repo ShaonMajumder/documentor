@@ -23,7 +23,8 @@ def createNewReadme():
 	installation = input("Installation Link/String:")
 	
 	final_string_to_save = f"""## {name} - {tag}
-Author: {author} - {contact}
+Author: {author}
+Contact: {contact}
 ## Utilities
 
 ## Installation
