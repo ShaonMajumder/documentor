@@ -52,7 +52,7 @@ def generateFunctionUsagesString(realcurrentpath):
 	return func_usages_string
 
 def init(args):
-	printline=False
+	printline=True
 
 	realcurrentpath = os.path.realpath('')
 	sys.path.append(realcurrentpath)
@@ -69,32 +69,21 @@ def init(args):
 	else:
 		readmefilename = args.readme
 		filerealpath = os.path.join(realcurrentpath, readmefilename)
-
-		func_usages_string = generateFunctionUsagesString(realcurrentpath)
-
-		start = '## Function Usages'
-		end = 'Function Usages End'
 		# read the contents of your README file
 		with open(filerealpath, encoding='utf-8') as file:
 		    lines = file.readlines()
-		#getting the existing func usages lines in readme file
-		count = 0
-		startc = 0
-		endc = 0
-		for c in lines:
-			if start in c:
-				startc = count
-			if end in c:
-				endc = count
-				break
-			count+=1
-		deductlines = ''.join( lines[startc+1:endc] )
-
-		#replacing existing lines with prepared lines
 		alllines = ''.join(lines)
 
-	final_string_to_save = alllines.replace(deductlines,func_usages_string)
+	start = '## Function Usages'
+	end = 'Function Usages End'
 
+	func_usages_string = start + '\n\n' + generateFunctionUsagesString(realcurrentpath) + '\n\n' + end
+
+	
+	deductlines = alllines[ alllines.index(start):alllines.index(end)+len(end) ]
+
+	#replacing existing lines with prepared lines
+	final_string_to_save = alllines.replace(deductlines,func_usages_string)
 
 	if(printline):print(final_string_to_save)
 	shaonutil.file.write_file(outputfile, final_string_to_save,mode="w")
