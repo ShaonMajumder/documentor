@@ -17,6 +17,9 @@ def get_file_description_file(module):
 def init(args):
 	printline=False
 
+	realcurrentpath = os.path.realpath('')
+	sys.path.append(realcurrentpath)
+
 	if args.output:
 		outputfile = args.output
 	else:
@@ -43,9 +46,6 @@ Function Usages End"""
 
 	else:
 		readmefilename = args.readme
-		
-		realcurrentpath = os.path.realpath('')
-		sys.path.append(realcurrentpath)
 
 		#list all py modules in current directory
 		all_py_files = glob.glob(join(realcurrentpath, "*.py"))
