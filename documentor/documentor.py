@@ -71,8 +71,7 @@ def init(args):
 		readmefilename = args.readme
 		filerealpath = os.path.join(realcurrentpath, readmefilename)
 		# read the contents of your README file
-		with open(filerealpath, encoding='utf-8') as file:
-		    lines = file.readlines()
+		lines = shaonutil.file.read_file(filerealpath)
 		alllines = ''.join(lines)
 
 	start = '## Function Usages'
