@@ -3,6 +3,7 @@ import os
 import sys
 import glob
 import argparse		
+import shaonutil
 
 def get_members(module):
 	return [member for member in dir(module) if callable(getattr(module, member))]
