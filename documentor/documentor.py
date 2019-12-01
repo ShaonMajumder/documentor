@@ -1,163 +1,105 @@
-import pkgutil
-import re
+from os.path import  basename, isfile, join
+import os
 import sys
 import glob
-from os.path import dirname, basename, isfile, join
-from os import path
-import os
-import argparse
-
-import shaonutil.file as f
-import shaonutil.stats as i
-import shaonutil
-import shaonutil.file
-
-
-
+import argparse		
 
 def get_members(module):
 	return [member for member in dir(module) if callable(getattr(module, member))]
 
 def get_file_description_file(module):
 	member_doc_dic = {}
-	for member in dir(module):
-		if callable(getattr(module, member)):
-			if getattr(module, member).__doc__ != None:
-				member_doc_dic[member] = getattr(module, member).__doc__
-
+	for member in get_members(module):
+		if getattr(module, member).__doc__ != None:
+			member_doc_dic[member] = getattr(module, member).__doc__
 	return member_doc_dic
 
+def init(args):
+	printline=False
+
+	if args.output:
+		outputfile = args.output
+	else:
+		outputfile = 'docu.md'
+
+	outputfile = os.path.join(realcurrentpath, outputfile)
+
+	if args.readme == 'bare':
+		name = input("Project Name:")
+		tag = input("Project Tag:")
+		author = input("Project Author:")
+		contact = input("Project Contact:")
+		installation = input("Installation Link/String:")
+		
+		final_string_to_save = f"""## {name} - {tag}
+Author: {author} - {contact}
+## Utilities
+
+## Installation
+	{installation}
+## Function Usages
+
+Function Usages End"""
+
+	else:
+		readmefilename = args.readme
+		
+		realcurrentpath = os.path.realpath('')
+		sys.path.append(realcurrentpath)
+
+		#list all py modules in current directory
+		all_py_files = glob.glob(join(realcurrentpath, "*.py"))
+		allmodules = [basename(c)[:-3] for c in all_py_files if isfile(c) and not c.endswith('__init__.py')]
+
+		#get function usages lines
+		func_usages = ''
+		for m in allmodules:
+			module_heading = '### '+m+'\n\n'
+			module = __import__(m)
+			member_doc_dic = get_file_description_file(module)
+			func_lines = ''
+			for member in member_doc_dic:
+				func_lines += member + ' - ' + member_doc_dic[member] + '\n\n'
+			func_usages += module_heading + func_lines
 
 
-def get_all_submodules(packagename):
-	package = __import__(packagename, fromlist="dummy")	
-	prefix = package.__name__ + "."
-	return [modname for importer, modname, ispackage in pkgutil.iter_modules(package.__path__, prefix)]
+		start = '## Function Usages'
+		end = 'Function Usages End'
+		
+		filerealpath = os.path.join(realcurrentpath, readmefilename)
+		#os.path.realpath(readmefilename)
+		# read the contents of your README file
+		with open(filerealpath, encoding='utf-8') as file:
+		    lines = file.readlines()
+
+		#getting the existing func usages lines in readme file
+		count = 0
+		startc = 0
+		endc = 0
+		for c in lines:
+			if start in c:
+				startc = count
+			if end in c:
+				endc = count
+				break
+			count+=1
+		deductlines = ''.join( lines[startc+1:endc] )
+
+		#replacing existing lines with prepared lines
+		alllines = ''.join(lines)
+
+		final_string_to_save = alllines.replace(deductlines,func_usages)
 
 
-def import_all(packagename,log=False):
-	for modname in get_all_submodules(packagename):
-	    module = __import__(modname, fromlist="dummy")
-	    if(log): print("Imported", module)
-
-
-def get_file_description(i):
-	i = __import__(i, fromlist="dummy")
-	funcs = f.get_all_functions(i)
-	func_doc_dic = {}
-
-	for func in funcs:
-		stri = 'i.'+func+'.__doc__'
-		if eval(stri) != None:
-			func_doc_dic[func] = eval(stri)
-
-	func_string = ''
-	for func in func_doc_dic:
-		func_string += func + ' - ' + func_doc_dic[func] + '\n\n'
-
-	return '### '+i.__doc__+'\n\n' + func_string
-
-
-
-def init2(args):
-	if args.readme:
-		filename = args.readme
-
-	realpathdir = os.path.realpath(filename)
-
-	printl=False
-
-	all_py_files = glob.glob(join(realpathdir, "*.py"))
-	allmodules = [basename(c)[:-3] for c in all_py_files if isfile(c) and not c.endswith('__init__.py')]
-
-	func_string_final = ''
-	for m in allmodules:
-		sys.path.append(realpathdir)
-		module = __import__(m)
-		member_doc_dic = get_file_description_file(module)
-		func_string = ''
-		for member in member_doc_dic:
-			func_string += member + ' - ' + member_doc_dic[member] + '\n\n'
-		func_string_final += '### '+m+'\n\n' + func_string
-
-	print(func_string_final)
-
-
-	start = '## Function Usages'
-	end = 'Function Usages End'
-	
-	real_path = os.path.realpath(filename)
-
-	# read the contents of your README file
-	with open(real_path, encoding='utf-8') as file:
-	    lines = file.readlines()
-
-	count = 0
-	startc = 0
-	endc = 0
-	for c in lines:
-		if start in c:
-			startc = count
-		if end in c:
-			endc = count
-			break
-		count+=1
-
-	alllines = ''.join(lines)
-	function_usage_string = lines[startc+1:endc]
-	deductlines = ''.join(function_usage_string)
-
-	final_string_to_save = alllines.replace(deductlines,func_string_final)
-
-	if(printl):print(final_string_to_save)
-	shaonutil.file.write_file(os.path.realpath('docu.md'), final_string_to_save,mode="w")
-
-
-def init2(args):
-	if args.readme:
-		filename = args.readme
-
-	printl=False
-	func_string_final = ''
-	for submod in get_all_submodules('shaonutil'):
-		func_string_final += get_file_description(submod)
-
-	start = '## Function Usages'
-	end = 'Function Usages End'
-	
-	real_path = os.path.realpath(filename)
-
-	# read the contents of your README file
-	this_directory = path.abspath(path.dirname(__file__))
-	with open(real_path, encoding='utf-8') as file:
-	    lines = file.readlines()
-
-	count = 0
-	startc = 0
-	endc = 0
-	for c in lines:
-		if start in c:
-			startc = count
-		if end in c:
-			endc = count
-			break
-		count+=1
-
-	alllines = ''.join(lines)
-	function_usage_string = lines[startc+1:endc]
-	deductlines = ''.join(function_usage_string)
-
-	final_string_to_save = alllines.replace(deductlines,func_string_final)
-
-	if(printl):print(final_string_to_save)
-	shaonutil.file.write_file(os.path.realpath('docu.md'), final_string_to_save,mode="w")
+	if(printline):print(final_string_to_save)
+	shaonutil.file.write_file(outputfile, final_string_to_save,mode="w")
 
 def main():
 	parser = argparse.ArgumentParser(description="Automatic Documentation Generator")
-	parser.add_argument("--readme", help="../../shaonutil/README.md",type=str)
+	parser.add_argument("--readme", help="input the sample readme file",type=str,required=True)
+	parser.add_argument("--output", help="input the outputfile file",type=str)
 	args = parser.parse_args()
-	
-	
+		
 	try:
 		init(args)
 	except KeyboardInterrupt:
