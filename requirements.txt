@@ -1,0 +1,2 @@
+selenium==3.141.0
+shaonutil==0.0.0.55.1
