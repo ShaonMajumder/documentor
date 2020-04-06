@@ -29,7 +29,7 @@ def show_info(functionNode,ModuleName,classobj=""):
         
 
 def generateModuleFunctionUsageString(ModuleName):
-    with open(ModuleName+".py") as file:
+    with open(ModuleName+".py", encoding="utf8") as file:
         node = ast.parse(file.read())
 
     functions = [n for n in node.body if isinstance(n, ast.FunctionDef)]
@@ -96,7 +96,7 @@ Stable Version - {version}<br>
 Author: {author}<br>
 Contact: {contact}
 
-## Utilities
+## Area of Utilities
 
 ## Installation
 <code>{installation}</code>
